@@ -7,27 +7,53 @@
         display: block;
       }
     </style>
-    <h2>[[config]]</h2>
+    <h3>players:</h3>
+    <template is="dom-repeat" items="[[allPlayers]]" as="props">
+      <p>
+        <span> <b>id:</b> {{props.id}}</span><span> <b>alias:</b> {{props.alias}}</span>
+        <span> <b>amount:</b> {{props.amount}}</span><span> <b>status:</b> {{props.status}}</span>
+      </p>
+    </template>
+    <h3>properties:</h3>
+    <template is="dom-repeat" items="[[allProperties]]" as="props">
+      <p>
+        <span> <b>id:</b> {{props.id}}</span><span> <b>name:</b> {{props.name}}</span>
+        <span> <b>owner:</b> {{props.owner}}</span><span> <b>price:</b> {{props.price}}</span>
+      </p>
+    </template>
+    <h3>transactions:</h3>
+    <template is="dom-repeat" items="[[allTransactions]]" as="props">
+      <p>
+        <span> <b>id:</b> {{props.id}}</span><span> <b>to:</b> {{props.to}}</span>
+        <span> <b>from:</b> {{props.from}}</span><span> <b>amount:</b> {{props.amount}}</span>
+        <span> <b>timestamp:</b> {{props.timestamp.date}} {{props.timestamp.time}}</span>
+      </p>
+    </template>
   </template>
   <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
   <script>
-    /**
-     * `monopoly-controller`
-     *
-     *
-     * @customElement
-     * @polymer
-     * @demo demo/index.html
-     */
     class MonopolyController extends Polymer.Element {
       static get is() { return 'monopoly-controller'; }
       static get properties() {
         return {
           config: {
             type: Object,
-          }
+          },
+          database: {
+            type: Object,
+          },
+          allPlayers: {
+            type: Array,
+          },
+          allProperties: {
+            type: Array,
+          },
+          allTransactions: {
+            type: Array,
+          },
         };
       }
+
       constructor() {
         super();
         this.config = {
@@ -39,7 +65,54 @@
           messagingSenderId: "488537332296"
         };
         firebase.initializeApp(this.config);
-        console.log(firebase.app().name);  // "[DEFAULT]"
+        this.database = firebase.database();
+        this.allPlayers = {};
+        this.allProperties = {};
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.getPlayers();
+        this.getProperties();
+        this.getTransactions();
+      }
+
+      // transpile the format of firebase json to noSQL standar json
+      jsonTranspiler(snapshot) {
+        let i = 0;
+        let array = [];
+        let object = {};
+        let dataValues = {};
+        snapshot.forEach(data => {
+          object['id'] = data.key;
+          dataValues = data.val();
+          for (const prop in dataValues) {
+            object[prop] = dataValues[prop];
+          }
+          array[i] = object;
+          i++;
+          object = {};
+        });
+        console.log(array);
+        return array;
+      }
+
+      getPlayers() {
+        this.database.ref('players/').on("value", snapshot => {
+          this.allPlayers = this.jsonTranspiler(snapshot);
+        });
+      }
+
+      getProperties() {
+        this.database.ref('properties/').on("value", snapshot => {
+          this.allProperties = this.jsonTranspiler(snapshot);
+        });
+      }
+
+      getTransactions() {
+        this.database.ref('transactions/').on("value", snapshot => {
+          this.allTransactions = this.jsonTranspiler(snapshot);
+        });
       }
     }
 
