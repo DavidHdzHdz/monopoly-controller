@@ -7,13 +7,13 @@
         display: block;
       }
     </style>
-    <h2>Hello [[prop1]]!</h2>
+    <h2>[[config]]</h2>
   </template>
-
+  <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
   <script>
     /**
      * `monopoly-controller`
-     * 
+     *
      *
      * @customElement
      * @polymer
@@ -23,11 +23,23 @@
       static get is() { return 'monopoly-controller'; }
       static get properties() {
         return {
-          prop1: {
-            type: String,
-            value: 'monopoly-controller'
+          config: {
+            type: Object,
           }
         };
+      }
+      constructor() {
+        super();
+        this.config = {
+          apiKey: "AIzaSyCXWKfiFInlVvHKGVni4fFbKAg8Adr2sQI",
+          authDomain: "monopoly-transac.firebaseapp.com",
+          databaseURL: "https://monopoly-transac.firebaseio.com",
+          projectId: "monopoly-transac",
+          storageBucket: "monopoly-transac.appspot.com",
+          messagingSenderId: "488537332296"
+        };
+        firebase.initializeApp(this.config);
+        console.log(firebase.app().name);  // "[DEFAULT]"
       }
     }
 
