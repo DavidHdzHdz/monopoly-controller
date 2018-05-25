@@ -44,6 +44,9 @@
           },
           query: {
             type: String,
+            value: '',
+            reflectToAttribute: true,
+            observer: 'sendQuery',
           },
           allPlayers: {
             type: Array,
@@ -76,9 +79,6 @@
 
       connectedCallback() {
         super.connectedCallback();
-        //this.getPlayers();
-        //this.getProperties();
-        //this.getTransactions();
       }
 
       // transpile the format of firebase json to noSQL standar json
@@ -97,29 +97,51 @@
           i++;
           object = {};
         });
-        console.log(array);
         return array;
       }
 
       sendQuery() {
-
+        if (this.query==='getPlayers') {
+          this.getPlayers();
+        }
+        else if (this.query==='getProperties') {
+          this.getProperties();
+        }
+        else if (this.query==='getTransactions') {
+          this.getTransactions();
+        }
       }
 
       getPlayers() {
         this.database.ref('players/').on("value", snapshot => {
           this.allPlayers = this.jsonTranspiler(snapshot);
+          this.dispatchEvent(new CustomEvent('get-players', {
+            bubles: true,
+            composed: true,
+            detail: this.allPlayers
+          }));
         });
       }
 
       getProperties() {
         this.database.ref('properties/').on("value", snapshot => {
           this.allProperties = this.jsonTranspiler(snapshot);
+          this.dispatchEvent(new CustomEvent('get-properties', {
+            bubles: true,
+            composed: true,
+            detail: this.allProperties
+          }));
         });
       }
 
       getTransactions() {
         this.database.ref('transactions/').on("value", snapshot => {
           this.allTransactions = this.jsonTranspiler(snapshot);
+          this.dispatchEvent(new CustomEvent('get-transactions', {
+            bubles: true,
+            composed: true,
+            detail: this.allTransactions
+          }));
         });
       }
     }
