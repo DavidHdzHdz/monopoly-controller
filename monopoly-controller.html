@@ -42,6 +42,9 @@
           database: {
             type: Object,
           },
+          query: {
+            type: String,
+          },
           allPlayers: {
             type: Array,
           },
@@ -68,13 +71,14 @@
         this.database = firebase.database();
         this.allPlayers = {};
         this.allProperties = {};
+        this.allTransactions = {};
       }
 
       connectedCallback() {
         super.connectedCallback();
-        this.getPlayers();
-        this.getProperties();
-        this.getTransactions();
+        //this.getPlayers();
+        //this.getProperties();
+        //this.getTransactions();
       }
 
       // transpile the format of firebase json to noSQL standar json
@@ -95,6 +99,10 @@
         });
         console.log(array);
         return array;
+      }
+
+      sendQuery() {
+
       }
 
       getPlayers() {
